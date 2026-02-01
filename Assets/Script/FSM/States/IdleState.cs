@@ -21,6 +21,6 @@ public class IdleState : IState
 
     public void Exit()
     {
-        Debug.Log($"[{_owner.name}] Exit Idle State");
+
     }
 }

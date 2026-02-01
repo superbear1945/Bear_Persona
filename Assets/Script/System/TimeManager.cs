@@ -13,14 +13,17 @@ public class TimeManager : MonoBehaviour
 
     private bool _isInBulletTime;
     private float _bulletTimeTimer;
-    private float _defaultFixedDeltaTime; // Store initial fixedDeltaTime
+    private float _defaultFixedDeltaTime;
+
+    [Header("开启子弹时间时的视觉蒙版效果ui")]
+    [SerializeField] private GameObject _bulletTimeOverlay;
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            // Optionally: DontDestroyOnLoad(gameObject); // If needed across scenes
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -31,10 +34,12 @@ public class TimeManager : MonoBehaviour
     private void Start()
     {
         _defaultFixedDeltaTime = Time.fixedDeltaTime;
+        if (_bulletTimeOverlay != null) _bulletTimeOverlay.SetActive(false);
     }
 
     private void Update()
     {
+        // 简单的计时器
         if (_isInBulletTime)
         {
             _bulletTimeTimer -= Time.unscaledDeltaTime;
@@ -48,13 +53,9 @@ public class TimeManager : MonoBehaviour
     public void ToggleBulletTime()
     {
         if (_isInBulletTime)
-        {
             StopBulletTime();
-        }
         else
-        {
             StartBulletTime();
-        }
     }
 
     public void StartBulletTime()
@@ -65,7 +66,10 @@ public class TimeManager : MonoBehaviour
         _bulletTimeTimer = bulletTimeDuration;
         Time.timeScale = bulletTimeScale;
         Time.fixedDeltaTime = _defaultFixedDeltaTime * bulletTimeScale;
-        Debug.Log("[TimeManager] Start Bullet Time");
+
+        if (_bulletTimeOverlay != null)
+            _bulletTimeOverlay.SetActive(true);
+
     }
 
     public void StopBulletTime()
@@ -75,6 +79,7 @@ public class TimeManager : MonoBehaviour
         _isInBulletTime = false;
         Time.timeScale = 1f;
         Time.fixedDeltaTime = _defaultFixedDeltaTime;
-        Debug.Log("[TimeManager] Stop Bullet Time");
+
+        if (_bulletTimeOverlay != null) _bulletTimeOverlay.SetActive(false);
     }
 }

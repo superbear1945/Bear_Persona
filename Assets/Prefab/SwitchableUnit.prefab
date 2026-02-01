@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 5439274955951573804}
   - component: {fileID: 8136513506838074468}
   - component: {fileID: 1979410474003860087}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: SwitchableUnit
-  m_TagString: Player
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -161,4 +161,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a78cf13ea5d60f4e9e167616a5baf4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isSwitched: 1
+  _isSwitched: 0
+  _unitData: {fileID: 0}

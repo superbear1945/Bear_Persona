@@ -74,7 +74,6 @@ public class BearUnit : MonoBehaviour, ISwitchable
 
     private void SwitchToControlled()
     {
-        Debug.Log($"[BearUnit] Debug Switch -> Controlled: {gameObject.name}");
         _stateMachine.ChangeState(_controlledState);
     }
 

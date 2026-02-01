@@ -14,7 +14,6 @@ public class ControlledState : IState
     public void Enter()
     {
         PlayerController.Instance.currentUnit = _owner.gameObject;
-        Debug.Log(_owner + "Enter Controlled State");
     }
 
     public void Execute()
