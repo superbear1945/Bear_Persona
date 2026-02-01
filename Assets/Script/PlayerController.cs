@@ -15,6 +15,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private InputActionReference _attackAction;
     [SerializeField] private InputActionReference _specialAttackAction;
 
+    public InputAction MoveAction => _moveAction.action;
+    public InputAction SwitchAction => _switchAction.action;
+    public InputAction AttackAction => _attackAction.action;
+    public InputAction SpecialAttackAction => _specialAttackAction.action;
+
     private void Awake()
     {
         if (Instance == null)
@@ -43,38 +48,5 @@ public class PlayerController : MonoBehaviour
         _specialAttackAction.action.Disable();
     }
 
-    private void Update()
-    {
-        if (currentUnit == null) return;
-        InjectInputAction();
-    }
-
-    // 向被控制的对象注入输入内容
-    void InjectInputAction()
-    {
-        var switchable = currentUnit.GetComponent<ISwitchable>();
-        if (switchable == null) return;
-
-        // 移动
-        Vector2 moveInput = _moveAction.action.ReadValue<Vector2>();
-        switchable.OnMove(moveInput);
-
-        // 攻击
-        if (_attackAction.action.WasPressedThisFrame())
-        {
-            switchable.OnAttack();
-        }
-
-        // 特殊攻击
-        if (_specialAttackAction.action.WasPressedThisFrame())
-        {
-            switchable.OnSpecialAttack();
-        }
-
-        // 附身/切换
-        if (_switchAction.action.WasPressedThisFrame())
-        {
-            switchable.OnPossess();
-        }
-    }
+    // Update removed as Logic is moved to FSM
 }

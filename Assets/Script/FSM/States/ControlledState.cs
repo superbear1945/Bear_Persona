@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class ControlledState : IState
 {
-    private MonoBehaviour _owner;
+    private GameObject _owner;
 
-    public ControlledState(MonoBehaviour owner)
+    public ControlledState(GameObject owner)
     {
         _owner = owner;
     }
@@ -16,7 +16,33 @@ public class ControlledState : IState
 
     public void Execute()
     {
-        // Controlled logic (handled via input events mostly, but here we can do continuous updates if needed)
+        if (PlayerController.Instance == null) return;
+
+        // Move
+        Vector2 moveInput = PlayerController.Instance.MoveAction.ReadValue<Vector2>();
+        if (moveInput != Vector2.zero)
+        {
+            // Debug.Log($"[{_owner.name}] Moving: {moveInput}");
+            _owner.transform.Translate(new Vector3(moveInput.x, moveInput.y, 0) * 5f * Time.deltaTime);
+        }
+
+        // Attack
+        if (PlayerController.Instance.AttackAction.WasPressedThisFrame())
+        {
+            Debug.Log($"[{_owner.name}] Attack Action Triggered");
+        }
+
+        // Special Attack
+        if (PlayerController.Instance.SpecialAttackAction.WasPressedThisFrame())
+        {
+            Debug.Log($"[{_owner.name}] Special Attack Action Triggered");
+        }
+
+        // Possess/Switch (Self-trigger, though practically this might be handled by the switcher)
+        if (PlayerController.Instance.SwitchAction.WasPressedThisFrame())
+        {
+            Debug.Log($"[{_owner.name}] Possess Action Triggered");
+        }
     }
 
     public void Exit()

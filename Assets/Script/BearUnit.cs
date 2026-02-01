@@ -23,7 +23,7 @@ public class BearUnit : MonoBehaviour, ISwitchable
     {
         _stateMachine = new StateMachine();
         _idleState = new IdleState(this);
-        _controlledState = new ControlledState(this);
+        _controlledState = new ControlledState(this.gameObject);
         _chaseState = new ChaseState(this);
         _attackState = new AttackState(this);
         _patrolState = new PatrolState(this);
@@ -38,47 +38,32 @@ public class BearUnit : MonoBehaviour, ISwitchable
     private void Update()
     {
         _stateMachine.Update();
+        UpdateDebugSwitchState();
     }
 
-    public void OnEnterSwitch()
+    // 临时用于调试
+    private void UpdateDebugSwitchState()
     {
-        Debug.Log($"[BearUnit] Entered Switch State: {gameObject.name}");
-        IsSwitched = true;
-        _stateMachine.ChangeState(_controlledState);
-    }
-
-    public void OnExitSwitch()
-    {
-        Debug.Log($"[BearUnit] Exited Switch State: {gameObject.name}");
-        IsSwitched = false;
-        _stateMachine.ChangeState(_idleState);
-    }
-
-    public void OnMove(Vector2 direction)
-    {
-        // Only move if in ControlledState? Or just let input drive it given PlayerController safeguards.
-        // For now, keep logic here, but we could delegate to state.
-        if (direction != Vector2.zero)
+        // 详见 Doc/DebugFeatures.md
+        if (_isSwitched && _stateMachine.CurrentState != _controlledState)
         {
-            // Debug.Log($"[BearUnit] Moving: {direction}");
-            transform.Translate(new Vector3(direction.x, 0, direction.y) * 5f * Time.deltaTime);
+            SwitchToControlled();
+        }
+        else if (!_isSwitched && _stateMachine.CurrentState == _controlledState)
+        {
+            SwitchToIdle();
         }
     }
 
-    public void OnAttack()
+    private void SwitchToControlled()
     {
-        Debug.Log($"[BearUnit] Attack Action Triggered on {gameObject.name}");
-        // If we wanted, we could switch to AttackState here temporarily via animation events etc.
-        // _stateMachine.ChangeState(_attackState);
+        Debug.Log($"[BearUnit] Debug Switch -> Controlled: {gameObject.name}");
+        _stateMachine.ChangeState(_controlledState);
     }
 
-    public void OnSpecialAttack()
+    private void SwitchToIdle()
     {
-        Debug.Log($"[BearUnit] Special Attack Action Triggered on {gameObject.name}");
-    }
-
-    public void OnPossess()
-    {
-        Debug.Log($"[BearUnit] Possess Action Triggered on {gameObject.name}");
+        Debug.Log($"[BearUnit] Debug Switch -> Idle: {gameObject.name}");
+        _stateMachine.ChangeState(_idleState);
     }
 }
