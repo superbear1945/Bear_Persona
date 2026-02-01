@@ -19,6 +19,9 @@ public class BearUnit : MonoBehaviour, ISwitchable
     public float MoveSpeed => _unitData != null ? _unitData.moveSpeed : 5f;
     public float AggroRange => _unitData != null ? _unitData.aggroRange : 8f;
 
+    [Header("调试")]
+    [SerializeField] private string debugStateName;
+
     private StateMachine _stateMachine;
     private IdleState _idleState;
     private ControlledState _controlledState;
@@ -56,6 +59,20 @@ public class BearUnit : MonoBehaviour, ISwitchable
     private void Update()
     {
         _stateMachine.Update();
+
+        // 调试用
+        debugStateName = _stateMachine.CurrentState != null ? _stateMachine.CurrentState.GetType().Name : "None";
+
+        // 调试用
+        // 只有当 Inspector 中的开关与当前状态不一致时才切换，避免每帧重置状态
+        if (_isSwitched && _stateMachine.CurrentState != _controlledState)
+        {
+            SetControlled(true);
+        }
+        else if (!_isSwitched && _stateMachine.CurrentState == _controlledState)
+        {
+            SetControlled(false);
+        }
     }
 
     /*
