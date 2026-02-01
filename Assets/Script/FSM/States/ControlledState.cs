@@ -20,6 +20,7 @@ public class ControlledState : IState
     {
         if (PlayerController.Instance == null) return;
 
+        Debug.Log($"[{_owner.name}]拥有控制权");
         HandleMove();
         HandleAttack();
         HandleSpecialAttack();

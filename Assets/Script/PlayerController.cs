@@ -15,6 +15,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private InputActionReference _attackAction;
     [SerializeField] private InputActionReference _specialAttackAction;
 
+    [Header("附身范围指示器")]
+    [Tooltip("附身范围半径")]
+    public float PossesionRange = 3f;
+    [Tooltip("附身范围的圆环预制体 (必须包含 RangeCircle 组件)")]
+    [SerializeField] private GameObject rangeCirclePrefab;
+    // 当前的RangeCircle实际对象
+    private RangeCircle _currentRangeCircle;
+
     public InputAction MoveAction => _moveAction.action;
     public InputAction SwitchAction => _switchAction.action;
     public InputAction AttackAction => _attackAction.action;
@@ -51,12 +59,6 @@ public class PlayerController : MonoBehaviour
         _specialAttackAction.action.Disable();
     }
 
-    [Header("附身范围指示器")]
-    [Tooltip("附身范围半径")]
-    public float PossesionRange = 3f;
-    [Tooltip("附身范围的圆环预制体 (必须包含 RangeCircle 组件)")]
-    [SerializeField] private GameObject rangeCirclePrefab;
-    private RangeCircle _currentRangeCircle;
 
 
 
@@ -82,7 +84,7 @@ public class PlayerController : MonoBehaviour
             if (_currentRangeCircle == null)
             {
                 GameObject obj = Instantiate(rangeCirclePrefab);
-                // DontDestroyOnLoad(obj); // 可选：如果希望跨场景保留，可取消注释
+                // DontDestroyonload(obj); // 可选：如果希望跨场景保留，可取消注释
                 _currentRangeCircle = obj.GetComponent<RangeCircle>();
             }
 
@@ -99,6 +101,7 @@ public class PlayerController : MonoBehaviour
             _currentRangeCircle.gameObject.SetActive(false);
         }
     }
+
     private void Update()
     {
         HandlePossessionSwitch();

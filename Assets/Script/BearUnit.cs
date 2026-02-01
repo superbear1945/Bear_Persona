@@ -17,6 +17,7 @@ public class BearUnit : MonoBehaviour, ISwitchable
     [SerializeField] private UnitData _unitData;
 
     public float MoveSpeed => _unitData != null ? _unitData.moveSpeed : 5f;
+    public float AggroRange => _unitData != null ? _unitData.aggroRange : 8f;
 
     private StateMachine _stateMachine;
     private IdleState _idleState;
@@ -55,30 +56,32 @@ public class BearUnit : MonoBehaviour, ISwitchable
     private void Update()
     {
         _stateMachine.Update();
-        UpdateDebugSwitchState();
     }
 
-    // 临时用于调试
-    private void UpdateDebugSwitchState()
+    /*
+    private void FixedUpdate()
     {
-        // 详见 Doc/DebugFeatures.md
-        if (_isSwitched && _stateMachine.CurrentState != _controlledState)
-        {
-            SwitchToControlled();
-        }
-        else if (!_isSwitched && _stateMachine.CurrentState == _controlledState)
-        {
-            SwitchToIdle();
-        }
+        _stateMachine.FixedUpdate();
     }
+    */
 
     public void SetControlled(bool isControlled)
     {
         _isSwitched = isControlled;
-        if (isControlled)
+
+        // 切换 Tag 和 Layer
+        if (_isSwitched)
+        {
+            gameObject.tag = "Player";
+            gameObject.layer = LayerMask.NameToLayer("Player");
             SwitchToControlled();
+        }
         else
+        {
+            gameObject.tag = "Enemy";
+            gameObject.layer = LayerMask.NameToLayer("Enemy");
             SwitchToIdle();
+        }
     }
 
     private void SwitchToControlled()
@@ -86,9 +89,14 @@ public class BearUnit : MonoBehaviour, ISwitchable
         _stateMachine.ChangeState(_controlledState);
     }
 
-    private void SwitchToIdle()
+    public void SwitchToIdle()
     {
-        Debug.Log($"[BearUnit] Debug Switch -> Idle: {gameObject.name}");
+        // Debug.Log($"[BearUnit] Debug Switch -> Idle: {gameObject.name}");
         _stateMachine.ChangeState(_idleState);
+    }
+
+    public void SwitchToChase()
+    {
+        _stateMachine.ChangeState(_chaseState);
     }
 }
