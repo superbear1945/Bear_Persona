@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class PatrolState : IState
 {
-    private MonoBehaviour _owner;
+    private BearUnit _owner;
 
-    public PatrolState(MonoBehaviour owner)
+    public PatrolState(BearUnit owner)
     {
         _owner = owner;
     }

@@ -1,5 +1,7 @@
 using UnityEngine;
 
+// 基础单位，后续可能会改造成单位基类，但目前思路是通过ScriptableObject实现多兵种
+[RequireComponent(typeof(Rigidbody2D))]
 public class BearUnit : MonoBehaviour, ISwitchable
 {
     [Header("是否被玩家操控")]
@@ -10,6 +12,11 @@ public class BearUnit : MonoBehaviour, ISwitchable
         get => _isSwitched;
         set => _isSwitched = value;
     }
+
+    [Header("数据配置")]
+    [SerializeField] private UnitData _unitData;
+
+    public float MoveSpeed => _unitData != null ? _unitData.moveSpeed : 5f;
 
     private StateMachine _stateMachine;
     private IdleState _idleState;
@@ -23,7 +30,7 @@ public class BearUnit : MonoBehaviour, ISwitchable
     {
         _stateMachine = new StateMachine();
         _idleState = new IdleState(this);
-        _controlledState = new ControlledState(this.gameObject);
+        _controlledState = new ControlledState(this);
         _chaseState = new ChaseState(this);
         _attackState = new AttackState(this);
         _patrolState = new PatrolState(this);
@@ -31,6 +38,16 @@ public class BearUnit : MonoBehaviour, ISwitchable
 
     private void Start()
     {
+        // Apply Data
+        if (_unitData != null)
+        {
+            var sr = GetComponent<SpriteRenderer>();
+            if (sr != null && _unitData.unitSprite != null)
+            {
+                sr.sprite = _unitData.unitSprite;
+            }
+        }
+
         // Default verification state
         _stateMachine.ChangeState(_idleState);
     }

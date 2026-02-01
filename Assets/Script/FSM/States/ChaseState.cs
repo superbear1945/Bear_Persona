@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class ChaseState : IState
 {
-    private MonoBehaviour _owner;
+    private BearUnit _owner;
 
-    public ChaseState(MonoBehaviour owner)
+    public ChaseState(BearUnit owner)
     {
         _owner = owner;
     }

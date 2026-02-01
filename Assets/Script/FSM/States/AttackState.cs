@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class AttackState : IState
 {
-    private MonoBehaviour _owner;
+    private BearUnit _owner;
 
-    public AttackState(MonoBehaviour owner)
+    public AttackState(BearUnit owner)
     {
         _owner = owner;
     }

@@ -2,11 +2,13 @@ using UnityEngine;
 
 public class ControlledState : IState
 {
-    private GameObject _owner;
+    private BearUnit _owner;
+    private Rigidbody2D _rb;
 
-    public ControlledState(GameObject owner)
+    public ControlledState(BearUnit owner)
     {
         _owner = owner;
+        _rb = owner.GetComponent<Rigidbody2D>();
     }
 
     public void Enter()
@@ -18,27 +20,42 @@ public class ControlledState : IState
     {
         if (PlayerController.Instance == null) return;
 
-        // Move
-        Vector2 moveInput = PlayerController.Instance.MoveAction.ReadValue<Vector2>();
-        if (moveInput != Vector2.zero)
-        {
-            // Debug.Log($"[{_owner.name}] Moving: {moveInput}");
-            _owner.transform.Translate(new Vector3(moveInput.x, moveInput.y, 0) * 5f * Time.deltaTime);
-        }
+        HandleMove();
+        HandleAttack();
+        HandleSpecialAttack();
+        HandleSwitch();
+    }
 
-        // Attack
+    private void HandleMove()
+    {
+        if (_rb == null)
+            Debug.LogError($"当前单位 [{_owner.name}] 没有 Rigidbody2D！");
+
+        Vector2 moveInput = PlayerController.Instance.MoveAction.ReadValue<Vector2>();
+
+        float speed = _owner.MoveSpeed;
+
+        _rb.velocity = moveInput * speed;
+    }
+
+    private void HandleAttack()
+    {
         if (PlayerController.Instance.AttackAction.WasPressedThisFrame())
         {
             Debug.Log($"[{_owner.name}] Attack Action Triggered");
         }
+    }
 
-        // Special Attack
+    private void HandleSpecialAttack()
+    {
         if (PlayerController.Instance.SpecialAttackAction.WasPressedThisFrame())
         {
             Debug.Log($"[{_owner.name}] Special Attack Action Triggered");
         }
+    }
 
-        // Possess/Switch (Self-trigger, though practically this might be handled by the switcher)
+    private void HandleSwitch()
+    {
         if (PlayerController.Instance.SwitchAction.WasPressedThisFrame())
         {
             Debug.Log($"[{_owner.name}] Possess Action Triggered");
@@ -48,5 +65,9 @@ public class ControlledState : IState
     public void Exit()
     {
         Debug.Log($"[{_owner.name}] Exit Controlled State");
+        if (_rb != null)
+        {
+            _rb.velocity = Vector2.zero;
+        }
     }
 }

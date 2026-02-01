@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class IdleState : IState
 {
-    private MonoBehaviour _owner;
+    private BearUnit _owner;
 
-    public IdleState(MonoBehaviour owner)
+    public IdleState(BearUnit owner)
     {
         _owner = owner;
     }
