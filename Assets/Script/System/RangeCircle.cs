@@ -34,9 +34,9 @@ public class RangeCircle : MonoBehaviour
     {
         if (_target != null)
         {
-            // Follow target
+            // 跟随目标
             transform.position = _target.position;
-            UpdateCircle(); 
+            UpdateCircle();
         }
     }
 

@@ -58,15 +58,8 @@ public class ControlledState : IState
     {
         if (PlayerController.Instance.SwitchAction.WasPressedThisFrame())
         {
-            Debug.Log($"[{_owner.name}] Switching Action - Toggle Bullet Time");
-            if (TimeManager.Instance != null)
-            {
-                TimeManager.Instance.ToggleBulletTime();
-            }
-            else
-            {
-                Debug.LogWarning("TimeManager Instance is null!");
-            }
+            Debug.Log($"[{_owner.name}] 切换/附身操作 - 触发子弹时间");
+            PlayerController.Instance.TogglePossessionMode();
         }
     }
 

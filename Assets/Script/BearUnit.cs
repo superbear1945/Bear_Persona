@@ -72,6 +72,15 @@ public class BearUnit : MonoBehaviour, ISwitchable
         }
     }
 
+    public void SetControlled(bool isControlled)
+    {
+        _isSwitched = isControlled;
+        if (isControlled)
+            SwitchToControlled();
+        else
+            SwitchToIdle();
+    }
+
     private void SwitchToControlled()
     {
         _stateMachine.ChangeState(_controlledState);

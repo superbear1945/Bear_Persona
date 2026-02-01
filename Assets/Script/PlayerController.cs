@@ -48,5 +48,125 @@ public class PlayerController : MonoBehaviour
         _specialAttackAction.action.Disable();
     }
 
-    // Update removed as Logic is moved to FSM
+    [Header("附身范围指示器")]
+    [Tooltip("附身范围半径")]
+    public float skillRange = 3f;
+    [Tooltip("附身范围的圆环预制体 (必须包含 RangeCircle 组件)")]
+    [SerializeField] private GameObject rangeCirclePrefab;
+    private RangeCircle _currentRangeCircle;
+
+
+
+    // 切换附身模式（子弹时间 + 视觉效果）
+    public void TogglePossessionMode()
+    {
+        if (TimeManager.Instance == null) return;
+
+        // 切换时间流速
+        TimeManager.Instance.ToggleBulletTime();
+
+        // 切换后的状态判断
+        if (TimeManager.Instance != null && TimeManager.Instance.IsInBulletTime)
+            ShowRangeIndicator();
+        else
+            HideRangeIndicator();
+    }
+
+    private void ShowRangeIndicator()
+    {
+        if (rangeCirclePrefab != null && currentUnit != null)
+        {
+            if (_currentRangeCircle == null)
+            {
+                GameObject obj = Instantiate(rangeCirclePrefab);
+                // DontDestroyOnLoad(obj); // 可选：如果希望跨场景保留，可取消注释
+                _currentRangeCircle = obj.GetComponent<RangeCircle>();
+            }
+
+            _currentRangeCircle.gameObject.SetActive(true);
+            _currentRangeCircle.Setup(skillRange);
+            _currentRangeCircle.SetTarget(currentUnit.transform);
+        }
+    }
+
+    private void HideRangeIndicator()
+    {
+        if (_currentRangeCircle != null)
+        {
+            _currentRangeCircle.gameObject.SetActive(false);
+        }
+    }
+    private void Update()
+    {
+        HandlePossessionSwitch();
+    }
+
+    private void HandlePossessionSwitch()
+    {
+        // 1. 检查是否在附身模式 (子弹时间)
+        if (TimeManager.Instance == null || !TimeManager.Instance.IsInBulletTime)
+            return;
+
+        // 2. 检测攻击键按下 (确认选择)
+        if (_attackAction.action.WasPressedThisFrame())
+        {
+            PerformRaycastAndSwitch();
+        }
+    }
+
+    private void PerformRaycastAndSwitch()
+    {
+        // 获取鼠标位置 (Screen -> World)
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Vector3 worldPos = Camera.main.ScreenToWorldPoint(mousePos);
+        Vector2 worldPos2D = new Vector2(worldPos.x, worldPos.y);
+
+        // 射线检测
+        RaycastHit2D hit = Physics2D.Raycast(worldPos2D, Vector2.zero);
+
+        if (hit.collider != null)
+        {
+            BearUnit targetUnit = hit.collider.GetComponent<BearUnit>();
+
+            // 目标有效，且不是当前控制的单位
+            if (targetUnit != null && targetUnit.gameObject != currentUnit)
+            {
+                // 距离检查 (Skill Range)
+                float dist = Vector2.Distance(currentUnit.transform.position, targetUnit.transform.position);
+                if (dist <= skillRange)
+                {
+                    SwitchControlTo(targetUnit);
+                }
+                else
+                {
+                    Debug.Log("目标超出附身范围");
+                }
+            }
+        }
+    }
+
+    private void SwitchControlTo(BearUnit newUnit)
+    {
+        // 1. 释放旧单位
+        if (currentUnit != null)
+        {
+            var pUnit = currentUnit.GetComponent<BearUnit>();
+            if (pUnit != null) pUnit.SetControlled(false);
+        }
+
+        // 2. 控制新单位
+        currentUnit = newUnit.gameObject;
+        newUnit.SetControlled(true);
+
+        // 3. 退出附身模式
+        TogglePossessionMode();
+
+        // 4. 更新指示器目标 (虽然马上隐藏了，但更新引用是安全的)
+        if (_currentRangeCircle != null)
+        {
+            _currentRangeCircle.SetTarget(newUnit.transform);
+        }
+
+        Debug.Log($"[PlayerController] Switched control to {newUnit.name}");
+    }
 }

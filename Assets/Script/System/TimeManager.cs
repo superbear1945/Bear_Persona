@@ -12,18 +12,13 @@ public class TimeManager : MonoBehaviour
     public float bulletTimeScale = 0.1f;
 
     private bool _isInBulletTime;
+    public bool IsInBulletTime => _isInBulletTime;
+
     private float _bulletTimeTimer;
     private float _defaultFixedDeltaTime;
 
-    [Header("开启子弹时间时的视觉蒙版效果ui")]
+    [Header("UI 视觉反馈")]
     [SerializeField] private GameObject _bulletTimeOverlay;
-
-    [Header("技能范围指示器")]
-    [Tooltip("技能生效半径")]
-    public float skillRange = 3f;
-    [Tooltip("圆环预制体 (必须包含 RangeCircle 组件)")]
-    [SerializeField] private GameObject rangeCirclePrefab;
-    private RangeCircle _currentRangeCircle;
 
     private void Awake()
     {
@@ -77,21 +72,6 @@ public class TimeManager : MonoBehaviour
         if (_bulletTimeOverlay != null)
             _bulletTimeOverlay.SetActive(true);
 
-        // Show Range Circle
-        if (rangeCirclePrefab != null && PlayerController.Instance.currentUnit != null)
-        {
-            if (_currentRangeCircle == null)
-            {
-                GameObject obj = Instantiate(rangeCirclePrefab);
-                DontDestroyOnLoad(obj); // Keep it with manager
-                _currentRangeCircle = obj.GetComponent<RangeCircle>();
-            }
-
-            _currentRangeCircle.gameObject.SetActive(true);
-            _currentRangeCircle.Setup(skillRange);
-            _currentRangeCircle.SetTarget(PlayerController.Instance.currentUnit.transform);
-        }
-
         Debug.Log("[TimeManager] Start Bullet Time");
     }
 
@@ -105,10 +85,6 @@ public class TimeManager : MonoBehaviour
 
         if (_bulletTimeOverlay != null) _bulletTimeOverlay.SetActive(false);
 
-        // Hide Range Circle
-        if (_currentRangeCircle != null)
-        {
-            _currentRangeCircle.gameObject.SetActive(false);
-        }
+        Debug.Log("[TimeManager] Stop Bullet Time");
     }
 }
