@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// 该脚本用于绘制圆，目前用于显示附身范围，后续或许可以用于范围攻击的攻击指示器
 [RequireComponent(typeof(LineRenderer))]
 public class RangeCircle : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class RangeCircle : MonoBehaviour
     private void Awake()
     {
         _lineRenderer = GetComponent<LineRenderer>();
-        _lineRenderer.useWorldSpace = true;
+        _lineRenderer.useWorldSpace = false; // 使用相对坐标
         _lineRenderer.loop = true;
         _lineRenderer.positionCount = _segments + 1;
     }
@@ -21,26 +22,42 @@ public class RangeCircle : MonoBehaviour
         _radius = radius;
         _lineRenderer.startWidth = width;
         _lineRenderer.endWidth = width;
-        UpdateCircle();
+        GenerateCirclePoints(); // 只需计算一次点
+    }
+
+    private void Start()
+    {
+        if (PlayerController.Instance != null)
+        {
+            PlayerController.Instance.OnPossessionChanged += OnPossessionChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (PlayerController.Instance != null)
+        {
+            PlayerController.Instance.OnPossessionChanged -= OnPossessionChanged;
+        }
+    }
+
+    private void OnPossessionChanged(BearUnit unit)
+    {
+        SetTarget(unit.transform);
     }
 
     public void SetTarget(Transform target)
     {
         _target = target;
-        UpdateCircle();
-    }
-
-    private void Update()
-    {
+        // 初始位置同步
         if (_target != null)
         {
-            // 跟随目标
-            transform.position = _target.position;
-            UpdateCircle();
+            transform.SetParent(_target, false);
+            transform.localPosition = Vector3.zero;
         }
     }
 
-    private void UpdateCircle()
+    private void GenerateCirclePoints()
     {
         if (_lineRenderer == null) return;
 
@@ -50,7 +67,8 @@ public class RangeCircle : MonoBehaviour
             float x = Mathf.Sin(Mathf.Deg2Rad * angle) * _radius;
             float y = Mathf.Cos(Mathf.Deg2Rad * angle) * _radius;
 
-            Vector3 pos = transform.position + new Vector3(x, y, 0);
+            // 本地坐标，相对于 (0,0)
+            Vector3 pos = new Vector3(x, y, 0);
             _lineRenderer.SetPosition(i, pos);
 
             angle += (360f / _segments);

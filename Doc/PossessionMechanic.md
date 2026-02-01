@@ -44,7 +44,7 @@
 当 `ControlledState` 捕获到输入时，调用 `PlayerController.Instance.TogglePossessionMode()`：
 
 1. **时间变速**:
-   `PlayerController` 调用 `TimeManager.Instance.ToggleBulletTime()`，游戏变慢。
+   `PlayerController` 调用 `TimeManager.Instance.TogglePossession()`，游戏变慢。
 
 2. **显示指示器**:
     - `PlayerController` 实例化（或激活）`RangeCircle`。

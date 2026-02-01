@@ -4,21 +4,21 @@ public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance;
 
-    [Header("子弹时间配置")]
-    [Tooltip("子弹时间持续时间 (秒)")]
-    public float bulletTimeDuration = 5f;
-    [Tooltip("子弹时间的时间流速 (0.01 - 1)")]
+    [Header("时间控制设置")]
+    [Tooltip("附身/子弹时间持续时长 (秒)")]
+    public float possessionDuration = 5.0f;
+    [Tooltip("附身/子弹时间的时间流速 (0~1)")]
     [Range(0.01f, 1f)]
-    public float bulletTimeScale = 0.1f;
+    public float possessionTimeScale = 0.1f;
 
-    private bool _isInBulletTime;
-    public bool IsInBulletTime => _isInBulletTime;
+    private bool _isInPossession;
+    public bool IsInPossession => _isInPossession;
 
-    private float _bulletTimeTimer;
+    private float _possessionTimer;
     private float _defaultFixedDeltaTime;
 
     [Header("UI 视觉反馈")]
-    [SerializeField] private GameObject _bulletTimeOverlay;
+    [SerializeField] private GameObject _possessionOverlay;
 
     private void Awake()
     {
@@ -36,55 +36,55 @@ public class TimeManager : MonoBehaviour
     private void Start()
     {
         _defaultFixedDeltaTime = Time.fixedDeltaTime;
-        if (_bulletTimeOverlay != null) _bulletTimeOverlay.SetActive(false);
+        if (_possessionOverlay != null) _possessionOverlay.SetActive(false);
     }
 
     private void Update()
     {
         // 简单的计时器
-        if (_isInBulletTime)
+        if (_isInPossession)
         {
-            _bulletTimeTimer -= Time.unscaledDeltaTime;
-            if (_bulletTimeTimer <= 0)
+            _possessionTimer -= Time.unscaledDeltaTime;
+            if (_possessionTimer <= 0)
             {
-                StopBulletTime();
+                StopPossession();
             }
         }
     }
 
-    public void ToggleBulletTime()
+    public void TogglePossession()
     {
-        if (_isInBulletTime)
-            StopBulletTime();
+        if (_isInPossession)
+            StopPossession();
         else
-            StartBulletTime();
+            StartPossession();
     }
 
-    public void StartBulletTime()
+    public void StartPossession()
     {
-        if (_isInBulletTime) return;
+        if (_isInPossession) return;
 
-        _isInBulletTime = true;
-        _bulletTimeTimer = bulletTimeDuration;
-        Time.timeScale = bulletTimeScale;
-        Time.fixedDeltaTime = _defaultFixedDeltaTime * bulletTimeScale;
+        _isInPossession = true;
+        _possessionTimer = possessionDuration;
+        Time.timeScale = possessionTimeScale;
+        Time.fixedDeltaTime = _defaultFixedDeltaTime * possessionTimeScale;
 
-        if (_bulletTimeOverlay != null)
-            _bulletTimeOverlay.SetActive(true);
+        if (_possessionOverlay != null)
+            _possessionOverlay.SetActive(true);
 
-        Debug.Log("[TimeManager] Start Bullet Time");
+        Debug.Log("[TimeManager] Start Possession Mode");
     }
 
-    public void StopBulletTime()
+    public void StopPossession()
     {
-        if (!_isInBulletTime) return;
+        if (!_isInPossession) return;
 
-        _isInBulletTime = false;
+        _isInPossession = false;
         Time.timeScale = 1f;
         Time.fixedDeltaTime = _defaultFixedDeltaTime;
 
-        if (_bulletTimeOverlay != null) _bulletTimeOverlay.SetActive(false);
+        if (_possessionOverlay != null) _possessionOverlay.SetActive(false);
 
-        Debug.Log("[TimeManager] Stop Bullet Time");
+        Debug.Log("[TimeManager] Stop Possession Mode");
     }
 }

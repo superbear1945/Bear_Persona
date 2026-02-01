@@ -20,6 +20,9 @@ public class PlayerController : MonoBehaviour
     public InputAction AttackAction => _attackAction.action;
     public InputAction SpecialAttackAction => _specialAttackAction.action;
 
+    // 进入附身模式时触发的事件
+    public event Action<BearUnit> OnPossessionChanged;
+
     private void Awake()
     {
         if (Instance == null)
@@ -50,7 +53,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("附身范围指示器")]
     [Tooltip("附身范围半径")]
-    public float skillRange = 3f;
+    public float PossesionRange = 3f;
     [Tooltip("附身范围的圆环预制体 (必须包含 RangeCircle 组件)")]
     [SerializeField] private GameObject rangeCirclePrefab;
     private RangeCircle _currentRangeCircle;
@@ -63,10 +66,10 @@ public class PlayerController : MonoBehaviour
         if (TimeManager.Instance == null) return;
 
         // 切换时间流速
-        TimeManager.Instance.ToggleBulletTime();
+        TimeManager.Instance.TogglePossession();
 
         // 切换后的状态判断
-        if (TimeManager.Instance != null && TimeManager.Instance.IsInBulletTime)
+        if (TimeManager.Instance != null && TimeManager.Instance.IsInPossession)
             ShowRangeIndicator();
         else
             HideRangeIndicator();
@@ -84,7 +87,7 @@ public class PlayerController : MonoBehaviour
             }
 
             _currentRangeCircle.gameObject.SetActive(true);
-            _currentRangeCircle.Setup(skillRange);
+            _currentRangeCircle.Setup(PossesionRange);
             _currentRangeCircle.SetTarget(currentUnit.transform);
         }
     }
@@ -104,7 +107,7 @@ public class PlayerController : MonoBehaviour
     private void HandlePossessionSwitch()
     {
         // 1. 检查是否在附身模式 (子弹时间)
-        if (TimeManager.Instance == null || !TimeManager.Instance.IsInBulletTime)
+        if (TimeManager.Instance == null || !TimeManager.Instance.IsInPossession)
             return;
 
         // 2. 检测攻击键按下 (确认选择)
@@ -133,7 +136,7 @@ public class PlayerController : MonoBehaviour
             {
                 // 距离检查 (Skill Range)
                 float dist = Vector2.Distance(currentUnit.transform.position, targetUnit.transform.position);
-                if (dist <= skillRange)
+                if (dist <= PossesionRange)
                 {
                     SwitchControlTo(targetUnit);
                 }
@@ -144,6 +147,7 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
 
     private void SwitchControlTo(BearUnit newUnit)
     {
@@ -161,11 +165,8 @@ public class PlayerController : MonoBehaviour
         // 3. 退出附身模式
         TogglePossessionMode();
 
-        // 4. 更新指示器目标 (虽然马上隐藏了，但更新引用是安全的)
-        if (_currentRangeCircle != null)
-        {
-            _currentRangeCircle.SetTarget(newUnit.transform);
-        }
+        // 4. 触发事件
+        OnPossessionChanged?.Invoke(newUnit);
 
         Debug.Log($"[PlayerController] Switched control to {newUnit.name}");
     }
