@@ -11,7 +11,7 @@ public class IdleState : IState
 
     public void Enter()
     {
-        Debug.Log($"[{_owner.name}] Enter Idle State");
+        
     }
 
     public void Execute()

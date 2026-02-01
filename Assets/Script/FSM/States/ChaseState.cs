@@ -11,7 +11,7 @@ public class ChaseState : IState
 
     public void Enter()
     {
-        Debug.Log($"[{_owner.name}] Enter Chase State");
+
     }
 
     public void Execute()

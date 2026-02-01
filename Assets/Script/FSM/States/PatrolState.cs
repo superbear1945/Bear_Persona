@@ -11,7 +11,7 @@ public class PatrolState : IState
 
     public void Enter()
     {
-        Debug.Log($"[{_owner.name}] Enter Patrol State");
+        
     }
 
     public void Execute()
@@ -21,6 +21,6 @@ public class PatrolState : IState
 
     public void Exit()
     {
-        Debug.Log($"[{_owner.name}] Exit Patrol State");
+
     }
 }

@@ -13,7 +13,8 @@ public class ControlledState : IState
 
     public void Enter()
     {
-        Debug.Log($"[{_owner.name}] Enter Controlled State");
+        PlayerController.Instance.currentUnit = _owner.gameObject;
+        Debug.Log(_owner + "Enter Controlled State");
     }
 
     public void Execute()
@@ -58,7 +59,15 @@ public class ControlledState : IState
     {
         if (PlayerController.Instance.SwitchAction.WasPressedThisFrame())
         {
-            Debug.Log($"[{_owner.name}] Possess Action Triggered");
+            Debug.Log($"[{_owner.name}] Switching Action - Toggle Bullet Time");
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.ToggleBulletTime();
+            }
+            else
+            {
+                Debug.LogWarning("TimeManager Instance is null!");
+            }
         }
     }
 
