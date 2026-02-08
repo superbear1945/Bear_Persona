@@ -1,22 +1,44 @@
 using UnityEngine;
 
 /// <summary>
+/// 攻击形状类型枚举
+/// </summary>
+public enum AttackShapeType
+{
+    Rectangle,  // 矩形
+    Circle      // 圆形 AOE
+}
+
+/// <summary>
 /// 蓄力攻击能力组件
 /// 管理攻击的蓄力、指示器显示、伤害判定
+/// 支持多种攻击形状（矩形、圆形等）
 /// </summary>
 public class ChargeAttack : MonoBehaviour
 {
-    [Header("配置")]
+    [Header("攻击类型")]
+    [SerializeField] private AttackShapeType _shapeType = AttackShapeType.Rectangle;
+
+    [Header("通用配置")]
+    [Tooltip("蓄力时间")]
+    public float chargeTime = 0.5f;
+
+    [Header("矩形攻击配置")]
     [Tooltip("攻击距离")]
     public float attackRange = 3f;
     [Tooltip("攻击宽度")]
     public float attackWidth = 1f;
-    [Tooltip("蓄力时间")]
-    public float chargeTime = 0.5f;
+
+    [Header("圆形攻击配置")]
+    [Tooltip("AOE 半径")]
+    public float aoeRadius = 2f;
 
     [Header("引用")]
-    [SerializeField] private RectIndicator _indicator;
-    [SerializeField] private ChargeBar _chargeBar;
+    [SerializeField] private RectIndicator _rectIndicator;
+    [SerializeField] private CircleIndicator _circleIndicator;
+
+    // 当前激活的指示器
+    private IAttackIndicator _activeIndicator;
 
     // 状态
     private bool _isCharging;
@@ -25,6 +47,7 @@ public class ChargeAttack : MonoBehaviour
 
     public bool IsCharging => _isCharging;
     public float ChargeProgress => _chargeProgress;
+    public AttackShapeType ShapeType => _shapeType;
 
     /// <summary>
     /// 从 UnitData 初始化攻击参数
@@ -48,19 +71,40 @@ public class ChargeAttack : MonoBehaviour
         _chargeProgress = 0f;
         _attackDirection = direction.normalized;
 
-        // 显示指示器
-        if (_indicator != null)
-        {
-            _indicator.Setup(attackRange, attackWidth);
-            _indicator.SetDirection(_attackDirection);
-            _indicator.Show();
-        }
+        // 根据攻击类型选择并设置指示器
+        SetupIndicator();
 
-        // 显示进度条
-        if (_chargeBar != null)
+        // 显示指示器
+        if (_activeIndicator != null)
         {
-            _chargeBar.SetProgress(0f);
-            _chargeBar.Show();
+            _activeIndicator.SetDirection(_attackDirection);
+            _activeIndicator.SetFillProgress(0f);
+            _activeIndicator.Show();
+        }
+    }
+
+    /// <summary>
+    /// 根据攻击类型设置指示器
+    /// </summary>
+    private void SetupIndicator()
+    {
+        switch (_shapeType)
+        {
+            case AttackShapeType.Rectangle:
+                if (_rectIndicator != null)
+                {
+                    _rectIndicator.Setup(attackRange, attackWidth);
+                    _activeIndicator = _rectIndicator;
+                }
+                break;
+
+            case AttackShapeType.Circle:
+                if (_circleIndicator != null)
+                {
+                    _circleIndicator.Setup(aoeRadius);
+                    _activeIndicator = _circleIndicator;
+                }
+                break;
         }
     }
 
@@ -74,8 +118,8 @@ public class ChargeAttack : MonoBehaviour
         _isCharging = false;
         _chargeProgress = 0f;
 
-        if (_indicator != null) _indicator.Hide();
-        if (_chargeBar != null) _chargeBar.Hide();
+        if (_activeIndicator != null)
+            _activeIndicator.Hide();
     }
 
     private void Update()
@@ -85,9 +129,9 @@ public class ChargeAttack : MonoBehaviour
         // 更新蓄力进度
         _chargeProgress += Time.deltaTime / chargeTime;
 
-        // 更新矩形填充进度
-        if (_indicator != null)
-            _indicator.SetFillProgress(_chargeProgress);
+        // 更新指示器填充进度
+        if (_activeIndicator != null)
+            _activeIndicator.SetFillProgress(_chargeProgress);
 
         // 蓄力完成
         if (_chargeProgress >= 1f)
@@ -102,18 +146,49 @@ public class ChargeAttack : MonoBehaviour
     /// </summary>
     private void PerformDamage()
     {
-        // 计算矩形区域
+        Collider2D[] hits;
+
+        switch (_shapeType)
+        {
+            case AttackShapeType.Rectangle:
+                hits = PerformRectangleDamage();
+                break;
+
+            case AttackShapeType.Circle:
+                hits = PerformCircleDamage();
+                break;
+
+            default:
+                hits = new Collider2D[0];
+                break;
+        }
+
+        ProcessHits(hits);
+    }
+
+    private Collider2D[] PerformRectangleDamage()
+    {
         Vector2 origin = (Vector2)transform.position;
         Vector2 center = origin + _attackDirection * (attackRange / 2f);
-
-        // 使用 OverlapBox 检测敌人
         float angle = Mathf.Atan2(_attackDirection.y, _attackDirection.x) * Mathf.Rad2Deg;
-        Collider2D[] hits = Physics2D.OverlapBoxAll(
+
+        return Physics2D.OverlapBoxAll(
             center,
             new Vector2(attackRange, attackWidth),
             angle
         );
+    }
 
+    private Collider2D[] PerformCircleDamage()
+    {
+        return Physics2D.OverlapCircleAll(
+            transform.position,
+            aoeRadius
+        );
+    }
+
+    private void ProcessHits(Collider2D[] hits)
+    {
         foreach (var hit in hits)
         {
             // 不攻击自己
@@ -140,8 +215,8 @@ public class ChargeAttack : MonoBehaviour
         _isCharging = false;
         _chargeProgress = 0f;
 
-        if (_indicator != null) _indicator.Hide();
-        if (_chargeBar != null) _chargeBar.Hide();
+        if (_activeIndicator != null)
+            _activeIndicator.Hide();
     }
 
     /// <summary>
@@ -150,14 +225,33 @@ public class ChargeAttack : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
+
+        switch (_shapeType)
+        {
+            case AttackShapeType.Rectangle:
+                DrawRectangleGizmo();
+                break;
+
+            case AttackShapeType.Circle:
+                DrawCircleGizmo();
+                break;
+        }
+    }
+
+    private void DrawRectangleGizmo()
+    {
         Vector2 dir = _isCharging ? _attackDirection : Vector2.right;
         Vector2 center = (Vector2)transform.position + dir * (attackRange / 2f);
 
-        // 绘制矩形轮廓
         Matrix4x4 oldMatrix = Gizmos.matrix;
         float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
         Gizmos.matrix = Matrix4x4.TRS(center, Quaternion.Euler(0, 0, angle), Vector3.one);
         Gizmos.DrawWireCube(Vector3.zero, new Vector3(attackRange, attackWidth, 0.1f));
         Gizmos.matrix = oldMatrix;
+    }
+
+    private void DrawCircleGizmo()
+    {
+        Gizmos.DrawWireSphere(transform.position, aoeRadius);
     }
 }

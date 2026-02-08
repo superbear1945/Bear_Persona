@@ -149,10 +149,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb6a1a91e5d82e8449ea264c3a9b1471, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lineRenderer: {fileID: 8967022784363854887}
-  _fillRenderer: {fileID: 0}
   _outlineColor: {r: 1, g: 0, b: 0, a: 1}
   _fillColor: {r: 1, g: 0, b: 0, a: 0.5}
+  _lineRenderer: {fileID: 8967022784363854887}
+  _fillRenderer: {fileID: 0}
 --- !u!1 &8851777000335989657
 GameObject:
   m_ObjectHideFlags: 0
@@ -167,7 +167,6 @@ GameObject:
   - component: {fileID: 8136513506838074468}
   - component: {fileID: 1979410474003860087}
   - component: {fileID: 4011529383484779826}
-  - component: {fileID: 6033337110788689974}
   m_Layer: 7
   m_Name: SwitchableUnit
   m_TagString: Enemy
@@ -332,25 +331,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49ec4edb6b46b27469f266a2d3daae3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _shapeType: 0
+  chargeTime: 0.5
   attackRange: 3
   attackWidth: 1
-  chargeTime: 0.5
-  _indicator: {fileID: 1584560895229436867}
-  _chargeBar: {fileID: 0}
---- !u!114 &6033337110788689974
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8851777000335989657}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49ec4edb6b46b27469f266a2d3daae3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackRange: 3
-  attackWidth: 1
-  chargeTime: 0.5
-  _indicator: {fileID: 1584560895229436867}
-  _chargeBar: {fileID: 0}
+  aoeRadius: 2
+  _rectIndicator: {fileID: 1584560895229436867}
+  _circleIndicator: {fileID: 0}
