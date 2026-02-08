@@ -154,23 +154,88 @@ public class PlayerController : MonoBehaviour
 
     private void SwitchControlTo(BearUnit newUnit)
     {
-        // 1. 释放旧单位
-        if (currentUnit != null)
+        // 1. 释放旧单位（如果不是死亡的单位）
+        if (currentUnit != null && currentUnit != _dyingUnit?.gameObject)
         {
             var pUnit = currentUnit.GetComponent<BearUnit>();
             if (pUnit != null) pUnit.SetControlled(false);
         }
 
-        // 2. 控制新单位
+        // 2. 销毁死亡的单位（如果有）
+        if (_dyingUnit != null)
+        {
+            // 取消超时事件订阅
+            if (TimeManager.Instance != null)
+            {
+                TimeManager.Instance.OnDeathPossessionTimeout -= OnGameOver;
+            }
+            DestroyDyingUnit();
+        }
+
+        // 3. 控制新单位
         currentUnit = newUnit.gameObject;
         newUnit.SetControlled(true);
 
-        // 3. 退出附身模式
+        // 4. 退出附身模式
         TogglePossessionMode();
 
-        // 4. 触发事件
+        // 5. 触发事件
         OnPossessionChanged?.Invoke(newUnit);
 
         Debug.Log($"[PlayerController] Switched control to {newUnit.name}");
+    }
+
+    // 死亡的单位（延迟销毁）
+    private BearUnit _dyingUnit;
+
+    /// <summary>
+    /// 当前控制的单位死亡时调用
+    /// 自动进入死亡附身模式
+    /// </summary>
+    public void OnControlledUnitDeath(BearUnit dyingUnit)
+    {
+        Debug.Log("[PlayerController] 控制单位死亡，进入死亡附身模式");
+
+        _dyingUnit = dyingUnit;
+        // 保持 currentUnit 引用以便计算距离
+        // currentUnit 保持不变，直到附身成功
+
+        // 订阅超时事件
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.OnDeathPossessionTimeout += OnGameOver;
+            TimeManager.Instance.StartDeathPossession();
+            ShowRangeIndicator();
+        }
+    }
+
+    /// <summary>
+    /// 销毁死亡的单位
+    /// </summary>
+    private void DestroyDyingUnit()
+    {
+        if (_dyingUnit != null)
+        {
+            Destroy(_dyingUnit.gameObject);
+            _dyingUnit = null;
+        }
+    }
+
+    /// <summary>
+    /// 死亡附身超时 = 游戏结束
+    /// </summary>
+    private void OnGameOver()
+    {
+        // 取消订阅
+        if (TimeManager.Instance != null)
+        {
+            TimeManager.Instance.OnDeathPossessionTimeout -= OnGameOver;
+        }
+
+        // 销毁死亡的单位
+        DestroyDyingUnit();
+
+        Debug.Log("========== 游戏结束 ==========");
+        // TODO: 实现真正的游戏结束逻辑
     }
 }

@@ -202,7 +202,7 @@ public class ChargeAttack : MonoBehaviour
             if (target != null)
             {
                 Debug.Log($"[ChargeAttack] {gameObject.name} 击杀了 {target.name}");
-                Destroy(target.gameObject);
+                target.Die();
             }
         }
     }

@@ -122,4 +122,24 @@ public class BearUnit : MonoBehaviour, ISwitchable
     {
         _stateMachine.ChangeState(_attackState);
     }
+
+    /// <summary>
+    /// 单位死亡
+    /// 如果是玩家控制的单位，触发死亡附身（延迟销毁）
+    /// </summary>
+    public void Die()
+    {
+        Debug.Log($"[BearUnit] {gameObject.name} 死亡");
+
+        // 如果是玩家控制的单位，触发死亡附身
+        if (_isSwitched && PlayerController.Instance != null)
+        {
+            // 延迟销毁，等待死亡附身结束
+            PlayerController.Instance.OnControlledUnitDeath(this);
+            return;
+        }
+
+        // 非玩家控制的单位直接销毁
+        Destroy(gameObject);
+    }
 }
