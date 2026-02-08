@@ -20,7 +20,6 @@ public class ControlledState : IState
     {
         if (PlayerController.Instance == null) return;
 
-        Debug.Log($"[{_owner.name}]拥有控制权");
         HandleMove();
         HandleAttack();
         HandleSpecialAttack();
@@ -41,10 +40,24 @@ public class ControlledState : IState
 
     private void HandleAttack()
     {
-        if (PlayerController.Instance.AttackAction.WasPressedThisFrame())
+        if (!PlayerController.Instance.AttackAction.WasPressedThisFrame()) return;
+
+        ChargeAttack chargeAttack = _owner.GetComponent<ChargeAttack>();
+        if (chargeAttack == null)
         {
-            Debug.Log($"[{_owner.name}] Attack Action Triggered");
+            Debug.LogWarning($"[{_owner.name}] 缺少 ChargeAttack 组件");
+            return;
         }
+
+        // 如果已经在蓄力，忽略
+        if (chargeAttack.IsCharging) return;
+
+        // 计算攻击方向 (从单位指向鼠标)
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(UnityEngine.Input.mousePosition);
+        Vector2 direction = (mouseWorldPos - _owner.transform.position).normalized;
+
+        chargeAttack.StartAttack(direction);
+        Debug.Log($"[{_owner.name}] 开始蓄力攻击");
     }
 
     private void HandleSpecialAttack()

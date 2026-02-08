@@ -34,6 +34,13 @@ public class ChaseState : IState
             return;
         }
 
+        // 如果在攻击范围内，切换到攻击状态
+        if (distance <= _owner.AttackRange)
+        {
+            _owner.SwitchToAttack();
+            return;
+        }
+
         // 移动
         Vector2 dir = (target.transform.position - _owner.transform.position).normalized;
         var rb = _owner.GetComponent<Rigidbody2D>();

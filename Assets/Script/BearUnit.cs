@@ -18,6 +18,7 @@ public class BearUnit : MonoBehaviour, ISwitchable
 
     public float MoveSpeed => _unitData != null ? _unitData.moveSpeed : 5f;
     public float AggroRange => _unitData != null ? _unitData.aggroRange : 8f;
+    public float AttackRange => _unitData != null ? _unitData.attackRange : 3f;
 
     [Header("调试")]
     [SerializeField] private string debugStateName;
@@ -115,5 +116,10 @@ public class BearUnit : MonoBehaviour, ISwitchable
     public void SwitchToChase()
     {
         _stateMachine.ChangeState(_chaseState);
+    }
+
+    public void SwitchToAttack()
+    {
+        _stateMachine.ChangeState(_attackState);
     }
 }
