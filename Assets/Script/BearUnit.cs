@@ -18,7 +18,10 @@ public class BearUnit : MonoBehaviour, ISwitchable
 
     public float MoveSpeed => _unitData != null ? _unitData.moveSpeed : 5f;
     public float AggroRange => _unitData != null ? _unitData.aggroRange : 8f;
-    public float AttackRange => _unitData != null ? _unitData.attackRange : 3f;
+    public float AttackRange => _runtimeAttackRange > 0f ? _runtimeAttackRange : (_unitData != null ? _unitData.attackRange : 3f);
+
+    // 运行时攻击范围（经过验证后的值，0 表示使用 UnitData 原始值）
+    private float _runtimeAttackRange;
 
     [Header("调试")]
     [SerializeField] private string debugStateName;
@@ -58,6 +61,9 @@ public class BearUnit : MonoBehaviour, ISwitchable
             {
                 chargeAttack.InitializeFromData(_unitData);
             }
+
+            // 验证停下攻击距离是否能实际命中目标
+            ValidateAttackRange();
         }
 
         // Default verification state
@@ -106,6 +112,44 @@ public class BearUnit : MonoBehaviour, ISwitchable
             gameObject.tag = "Enemy";
             gameObject.layer = LayerMask.NameToLayer("Enemy");
             SwitchToIdle();
+        }
+    }
+
+    /// <summary>
+    /// 验证敌人停下攻击的距离是否在有效攻击范围内
+    /// 如果停下距离超过实际攻击可达范围，则自动调整
+    /// </summary>
+    private void ValidateAttackRange()
+    {
+        if (_unitData == null) return;
+
+        float effectiveReach = GetEffectiveAttackReach();
+        float stopRange = _unitData.attackRange;
+
+        if (stopRange > effectiveReach)
+        {
+            _runtimeAttackRange = effectiveReach;
+            Debug.LogWarning($"{gameObject.name} 停下范围过远，已自动调整距离 ({stopRange} -> {effectiveReach})");
+        }
+    }
+
+    /// <summary>
+    /// 根据攻击形状获取实际可达攻击距离
+    /// </summary>
+    private float GetEffectiveAttackReach()
+    {
+        switch (_unitData.attackShapeType)
+        {
+            case AttackShapeType.Rectangle:
+                // 矩形攻击从自身位置向前延伸 attackRange
+                return _unitData.attackRange;
+
+            case AttackShapeType.Circle:
+                // 圆形 AOE 以自身为中心，半径为 aoeRadius
+                return _unitData.aoeRadius;
+
+            default:
+                return _unitData.attackRange;
         }
     }
 
