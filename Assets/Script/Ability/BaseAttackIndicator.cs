@@ -1,9 +1,7 @@
 using UnityEngine;
 
-/// <summary>
 /// 攻击指示器抽象基类
 /// 提供通用的初始化、填充进度、显示隐藏逻辑
-/// </summary>
 public abstract class BaseAttackIndicator : MonoBehaviour, IAttackIndicator
 {
     [Header("颜色配置")]

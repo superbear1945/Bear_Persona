@@ -10,8 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0b32780372886cb40ab0f87999b9e14d, type: 3}
-  m_Name: TestData
+  m_Name: CircleData
   m_EditorClassIdentifier: 
   unitSprite: {fileID: 0}
   moveSpeed: 5
   aggroRange: 5
+  attackShapeType: 1
+  attackChargeTime: 0.5
+  attackRange: 3
+  attackWidth: 1
+  aoeRadius: 2

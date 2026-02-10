@@ -51,5 +51,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Bear_Persona.sln"
+    "dotnet.defaultSolution": "Bear_Persona.sln",
+    "dotnet.preferCSharpExtension": true
 }

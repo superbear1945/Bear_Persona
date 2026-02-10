@@ -50,19 +50,23 @@ public class ChargeAttack : MonoBehaviour
     public AttackShapeType ShapeType => _shapeType;
 
     /// <summary>
-    /// 从 UnitData 初始化攻击参数
+    /// 从 UnitData 初始化所有攻击参数（含攻击形状类型）
     /// </summary>
-    public void Initialize(float range, float width, float time)
+    public void InitializeFromData(UnitData data)
     {
-        attackRange = range;
-        attackWidth = width;
-        chargeTime = time;
+        if (data == null) return;
+
+        _shapeType = data.attackShapeType;
+        chargeTime = data.attackChargeTime;
+        attackRange = data.attackRange;
+        attackWidth = data.attackWidth;
+        aoeRadius = data.aoeRadius;
     }
 
     /// <summary>
-    /// 开始蓄力攻击
+    /// 开始蓄力攻击（根据当前配置的攻击形状自动选择矩形/圆形）
     /// </summary>
-    /// <param name="direction">攻击方向（归一化）</param>
+    /// <param name="direction">攻击方向（归一化，圆形 AOE 时可传入任意值）</param>
     public void StartAttack(Vector2 direction)
     {
         if (_isCharging) return;

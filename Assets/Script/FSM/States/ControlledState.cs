@@ -42,6 +42,7 @@ public class ControlledState : IState
     {
         if (!PlayerController.Instance.AttackAction.WasPressedThisFrame()) return;
 
+        Debug.Log(_owner);
         ChargeAttack chargeAttack = _owner.GetComponent<ChargeAttack>();
         if (chargeAttack == null)
         {

@@ -43,13 +43,20 @@ public class BearUnit : MonoBehaviour, ISwitchable
 
     private void Start()
     {
-        // Apply Data
+        // 应用外观数据
         if (_unitData != null)
         {
             var sr = GetComponent<SpriteRenderer>();
             if (sr != null && _unitData.unitSprite != null)
             {
                 sr.sprite = _unitData.unitSprite;
+            }
+
+            // 从 UnitData 初始化攻击参数
+            var chargeAttack = GetComponent<ChargeAttack>();
+            if (chargeAttack != null)
+            {
+                chargeAttack.InitializeFromData(_unitData);
             }
         }
 
