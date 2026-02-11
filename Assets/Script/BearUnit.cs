@@ -19,6 +19,9 @@ public class BearUnit : MonoBehaviour, ISwitchable
     public float MoveSpeed => _unitData != null ? _unitData.moveSpeed : 5f;
     public float AggroRange => _unitData != null ? _unitData.aggroRange : 8f;
     public float AttackRange => _runtimeAttackRange > 0f ? _runtimeAttackRange : (_unitData != null ? _unitData.attackRange : 3f);
+    public float PatrolIdleTime => _unitData != null ? _unitData.patrolIdleTime : 3f;
+    public float PatrolIdleTimeRandomOffset => _unitData != null ? _unitData.patrolIdleTimeRandomOffset : 1f;
+    public float PatrolRadius => _unitData != null ? _unitData.patrolRadius : 5f;
 
     // 运行时攻击范围（经过验证后的值，0 表示使用 UnitData 原始值）
     private float _runtimeAttackRange;
@@ -172,6 +175,11 @@ public class BearUnit : MonoBehaviour, ISwitchable
     public void SwitchToAttack()
     {
         _stateMachine.ChangeState(_attackState);
+    }
+
+    public void SwitchToPatrol()
+    {
+        _stateMachine.ChangeState(_patrolState);
     }
 
     /// <summary>

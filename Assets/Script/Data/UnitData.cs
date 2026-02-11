@@ -23,4 +23,12 @@ public class UnitData : ScriptableObject
     [Header("圆形 AOE 参数")]
     [Tooltip("AOE 半径")]
     public float aoeRadius = 2f;
+
+    [Header("巡逻")]
+    [Tooltip("Idle 状态下多久切换到巡逻（秒）")]
+    public float patrolIdleTime = 3f;
+    [Tooltip("Idle 等待时间的正负随机偏差（秒）")]
+    public float patrolIdleTimeRandomOffset = 1f;
+    [Tooltip("巡逻随机选点半径")]
+    public float patrolRadius = 5f;
 }
