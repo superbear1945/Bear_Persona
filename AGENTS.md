@@ -37,3 +37,20 @@
 
 - This is a Unity 2D project with a possession mechanic; core code lives in `Assets/Script/`.
 - Follow existing architecture (FSM, ScriptableObject-driven configs) and keep gameplay logic data-driven.
+
+## Code Style
+- When a control-flow statement (e.g., `if`, `for`, `while`) contains only a single line of logic, omit braces. For example:
+
+- Correct:
+```csharp
+if (x == 1)
+    x++;
+```
+
+- Incorrect:
+```csharp
+if (x == 1)
+{
+    x++;
+}
+```
